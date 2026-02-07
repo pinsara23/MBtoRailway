@@ -1,6 +1,9 @@
 package org.se.mealbridge.controller;
 
+import org.se.mealbridge.dto.ForgotPasswordRequest;
 import org.se.mealbridge.dto.LoginRequest;
+import org.se.mealbridge.dto.LoginResponse;
+import org.se.mealbridge.dto.ResetPasswordRequest;
 import org.se.mealbridge.entity.AdminEntity;
 import org.se.mealbridge.entity.RestaurantEntity;
 import org.se.mealbridge.entity.VolunteerEntity;
@@ -8,7 +11,9 @@ import org.se.mealbridge.repository.AdminRepository;
 import org.se.mealbridge.repository.RestaurantRepository;
 import org.se.mealbridge.repository.VolunteerRepository;
 import org.se.mealbridge.security.JwtUtil;
+import org.se.mealbridge.services.PasswordResetService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,7 +26,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
@@ -34,10 +39,12 @@ public class AuthController {
     private AdminRepository adminRepository;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private PasswordResetService passwordResetService;
 
     // /api/auth/login
     @PostMapping("/login")
-    public Map<String,Object> login(@RequestBody LoginRequest request){
+    public LoginResponse login(@RequestBody LoginRequest request){
 
         //authenticate password
         Authentication auth = authenticationManager.authenticate(
@@ -77,12 +84,28 @@ public class AuthController {
         String token = jwtUtil.generateToken(request.getEmail(), role);
 
         //return
-        Map<String,Object> response = new HashMap<>();
-        response.put("token",token);
-        response.put("role",role);
-        response.put("userId",userId);
-        response.put("name",name);
+        //        Map<String,Object> response = new HashMap<>();
+//        response.put("token",token);
+//        response.put("role",role);
+//        response.put("userId",userId);
+//        response.put("name",name);
 
-        return response;
+        return new LoginResponse(token,name,role,userId);
+    }
+
+    // /api/auth/forgot-password
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest){
+
+        passwordResetService.initiatePassword(forgotPasswordRequest.email());
+        return ResponseEntity.ok("Password reset email send");
+    }
+
+    // /api/auth/reset-password
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetRequest){
+
+        passwordResetService.resetPassword(resetRequest.token(), resetRequest.newPassword());
+        return ResponseEntity.ok("Password reset successful");
     }
 }

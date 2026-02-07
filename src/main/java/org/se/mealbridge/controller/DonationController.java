@@ -24,7 +24,7 @@ public class DonationController {
         return donationService.createDonation(dto);
     }
 
-    // /api/donations/feed     //update
+    // /api/donations/feed
     @GetMapping("/feed")
     public List<DonationsDto> getFeed(){
         return donationService.getAllAvailableDonations();

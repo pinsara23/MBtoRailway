@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/restaurants/register").permitAll()
                         .requestMatchers("/api/volunteer/register").permitAll()
                         .requestMatchers("/api/admin/register").permitAll()
+                        .requestMatchers("/api/auth/forgot-password").permitAll()
 
                         .anyRequest().authenticated()
                 )
