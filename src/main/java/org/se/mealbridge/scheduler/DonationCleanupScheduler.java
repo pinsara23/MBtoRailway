@@ -1,5 +1,6 @@
 package org.se.mealbridge.scheduler;
 
+import jakarta.transaction.Transactional;
 import org.se.mealbridge.entity.DonationEntity;
 import org.se.mealbridge.entity.DonationStatus;
 import org.se.mealbridge.entity.VolunteerEntity;
@@ -20,6 +21,7 @@ public class DonationCleanupScheduler {
         this.donationRepository = donationRepository;
     }
 
+    @Transactional
     @Scheduled(fixedRate = 60000) //run this every 1min 60000 ms
     public void markExpiredDonations(){
 
