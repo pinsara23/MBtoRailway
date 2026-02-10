@@ -2,6 +2,7 @@ package org.se.mealbridge.scheduler;
 
 import org.se.mealbridge.entity.DonationEntity;
 import org.se.mealbridge.entity.DonationStatus;
+import org.se.mealbridge.entity.VolunteerEntity;
 import org.se.mealbridge.repository.DonationRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -46,6 +47,22 @@ public class DonationCleanupScheduler {
             }
 
             donationRepository.saveAll(expiredDonationsButClaimed);
+        }
+
+        List<DonationEntity> expiredDonationsButPickedUp = donationRepository.findByStatusAndMustPickupByBefore(DonationStatus.PICKED_UP, graceTime);
+        if (!expiredDonationsButPickedUp.isEmpty()){
+            for (DonationEntity donation : expiredDonationsButPickedUp){
+                donation.setStatus(DonationStatus.EXPIRED);
+
+                VolunteerEntity volunteer = donation.getAssignedVolunteer();
+                if (volunteer != null){
+                    volunteer.setCreditScore(volunteer.getCreditScore() -5);
+
+                }
+
+            }
+
+            donationRepository.saveAll(expiredDonationsButPickedUp);
         }
     }
 
