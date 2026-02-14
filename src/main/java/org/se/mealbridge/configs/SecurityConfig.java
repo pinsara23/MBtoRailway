@@ -20,7 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-@EnableMethodSecurity
+@EnableMethodSecurity   // for @PreAuthorize annotations in controllers(specific endpoints) to assign roles to specific endpoints
 public class SecurityConfig {
 
     @Bean
@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/volunteer/register").permitAll()
                         .requestMatchers("/api/admin/register").permitAll()
                         .requestMatchers("/api/auth/forgot-password").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
 
                         .anyRequest().authenticated()
                 )

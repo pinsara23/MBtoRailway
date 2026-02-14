@@ -19,14 +19,20 @@ public class VolunteerService {
     private ModelMapper modelMapper;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private WebSocketService webSocketService;
 
     //save volunteer group
     public VolunteerDto saveVolunteer(VolunteerDto volunteerDto) {
 
         VolunteerEntity enity = modelMapper.map(volunteerDto, VolunteerEntity.class);
+        
         enity.setPassword(passwordEncoder.encode(volunteerDto.getPassword()));
 
         VolunteerEntity savedVolunteerEntity = volunteerRepository.save(enity);
+
+        webSocketService.notifyAdmin("New volunteer group registered: " + volunteerDto.getOrganizationName());
+
         return modelMapper.map(savedVolunteerEntity, VolunteerDto.class);
     }
 
